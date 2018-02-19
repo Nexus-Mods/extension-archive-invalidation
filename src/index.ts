@@ -3,7 +3,8 @@ import { fileFilter, isSupported, targetAge } from './util/gameSupport';
 
 import * as Promise from 'bluebird';
 import * as path from 'path';
-import { fs, selectors, types, util } from 'vortex-api';
+import {} from 'redux-thunk';
+import { actions, fs, selectors, types, util } from 'vortex-api';
 
 function testArchivesAge(store: Redux.Store<types.IState>) {
   const gameId = selectors.activeGameId(store.getState());
@@ -50,6 +51,16 @@ function testArchivesAge(store: Redux.Store<types.IState>) {
                           .then((stats: any) => {
                             fixResolve();
                             return Promise.resolve(undefined);
+                          })
+                          .catch(err => {
+                            store.dispatch(actions.addNotification({
+                              type: 'error',
+                              title: 'Failed to change file times',
+                              message: err.code === 'EPERM'
+                                ? 'Game files are write protected'
+                                : err.message,
+                            }) as any);
+                            fixResolve();
                           })),
         });
       })
