@@ -1,20 +1,26 @@
 import filesNewer from './util/filesNewer';
-import { fileFilter, isSupported, targetAge } from './util/gameSupport';
+import { bsaVersion, fileFilter, isSupported, targetAge } from './util/gameSupport';
+import Settings from './views/Settings';
+
+import { toggleInvalidation } from './bsaRedirection';
+import { REDIRECTION_MOD } from './constants';
 
 import * as Promise from 'bluebird';
+import * as I18next from 'i18next';
 import * as path from 'path';
 import {} from 'redux-thunk';
 import { actions, fs, selectors, types, util } from 'vortex-api';
 
-function testArchivesAge(store: Redux.Store<types.IState>) {
-  const gameId = selectors.activeGameId(store.getState());
+function testArchivesAge(api: types.IExtensionApi) {
+  const state: types.IState = api.store.getState();
+  const gameId = selectors.activeGameId(state);
 
   if (!isSupported(gameId)) {
     return Promise.resolve(undefined);
   }
 
   const gamePath: string = util.getSafe(
-      store.getState(),
+      state,
       ['settings', 'gameMode', 'discovered', gameId, 'path'], undefined);
 
   if (gamePath === undefined) {
@@ -26,6 +32,9 @@ function testArchivesAge(store: Redux.Store<types.IState>) {
   const dataPath = game.getModPaths(gamePath)[''];
 
   const age = targetAge(gameId);
+  if (age === undefined) {
+    return Promise.resolve(undefined);
+  }
 
   return filesNewer(dataPath, fileFilter(gameId), age)
       .then((files: string[]) => {
@@ -53,7 +62,7 @@ function testArchivesAge(store: Redux.Store<types.IState>) {
                             return Promise.resolve(undefined);
                           })
                           .catch(err => {
-                            store.dispatch(actions.addNotification({
+                            api.store.dispatch(actions.addNotification({
                               type: 'error',
                               title: 'Failed to change file times',
                               message: err.code === 'EPERM'
@@ -65,19 +74,38 @@ function testArchivesAge(store: Redux.Store<types.IState>) {
         });
       })
       .catch((err: Error) => {
-        return Promise.resolve({
-          description: {
-            short: 'Failed to read bsa/ba2 files.',
-            long: err.toString(),
-          },
-          severity: 'error',
-        });
+        api.showErrorNotification('Failed to read bsa/ba2 files.', err);
+        return Promise.resolve(undefined);
       });
+}
+
+interface IToDoProps {
+  gameMode: string;
+  mods: { [id: string]: types.IMod };
 }
 
 function init(context: types.IExtensionContext): boolean {
   context.registerTest('archive-backdate', 'gamemode-activated',
-                       () => testArchivesAge(context.api.store));
+                       () => testArchivesAge(context.api));
+
+  context.registerToDo(
+    'bsa-redirection', 'workaround',
+    (state: types.IState): IToDoProps => {
+      const gameMode = selectors.activeGameId(state);
+      return {
+        gameMode,
+        mods: util.getSafe(state, ['persistent', 'mods', gameMode], {}),
+      };
+    }, 'workaround',
+    'Archive Invalidation', (props: IToDoProps) => toggleInvalidation(context.api, props.gameMode),
+    (props: IToDoProps) => isSupported(props.gameMode) && bsaVersion(props.gameMode) !== undefined,
+    (t: I18next.TranslationFunction, props: IToDoProps) => (
+      (props.mods[REDIRECTION_MOD] !== undefined) ? t('Yes') : t('No')
+    ),
+    undefined,
+  );
+
+  context.registerSettings('Workarounds', Settings);
 
   return true;
 }
