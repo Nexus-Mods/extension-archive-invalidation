@@ -4,7 +4,7 @@ import { toggleInvalidation } from '../bsaRedirection';
 import { REDIRECTION_MOD } from '../constants';
 
 import * as React from 'react';
-import { FormGroup, HelpBlock, ControlLabel } from 'react-bootstrap';
+import { ControlLabel, FormGroup, HelpBlock } from 'react-bootstrap';
 import { translate } from 'react-i18next';
 import { connect } from 'react-redux';
 import * as Redux from 'redux';
@@ -36,7 +36,7 @@ class Settings extends ComponentEx<IProps, {}> {
         <FormGroup controlId='redirection'>
           <ControlLabel>{t('Archive Invalidation')}</ControlLabel>
           <Toggle
-            checked={mods[REDIRECTION_MOD] !== undefined}
+            checked={(mods !== undefined) && (mods[REDIRECTION_MOD] !== undefined)}
             onToggle={this.toggle}
           >
             {t('BSA redirection')}
