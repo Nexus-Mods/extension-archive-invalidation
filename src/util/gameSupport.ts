@@ -37,6 +37,15 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
     iniName: 'Skyrim.ini',
     archiveListKey: 'SResourceArchiveList',
   },
+  skyrimvr: {
+    fileFilter: (fileName: string) =>
+      fileName.startsWith('Skyrim - ')
+      && path.extname(fileName).toLowerCase() === '.bsa',
+    targetAge: new Date(2008, 10, 1),
+    mygamesPath: 'Skyrim VR',
+    iniName: 'Skyrim.ini',
+    archiveListKey: 'SResourceArchiveList',
+  },
   fallout4: {
     fileFilter: (fileName: string) => {
       const fileNameL = fileName.toLowerCase();
