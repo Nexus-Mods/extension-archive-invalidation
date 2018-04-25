@@ -84,6 +84,10 @@ interface IToDoProps {
   mods: { [id: string]: types.IMod };
 }
 
+function useBSARedirection(gameMode: string) {
+  return isSupported(gameMode) && (targetAge(gameMode) === undefined);
+}
+
 function init(context: types.IExtensionContext): boolean {
   context.registerTest('archive-backdate', 'gamemode-activated',
                        () => testArchivesAge(context.api));
@@ -105,7 +109,9 @@ function init(context: types.IExtensionContext): boolean {
     undefined,
   );
 
-  context.registerSettings('Workarounds', Settings);
+  (context.registerSettings as any)('Workarounds', Settings, undefined, () =>
+    useBSARedirection(selectors.activeGameId(context.api.store.getState())),
+  );
 
   return true;
 }
