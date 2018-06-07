@@ -74,7 +74,9 @@ function testArchivesAge(api: types.IExtensionApi) {
         });
       })
       .catch((err: Error) => {
-        api.showErrorNotification('Failed to read bsa/ba2 files.', err);
+        api.showErrorNotification('Failed to read bsa/ba2 files.', err, {
+          allowReport: (err as any).code !== 'ENOENT',
+        });
         return Promise.resolve(undefined);
       });
 }
