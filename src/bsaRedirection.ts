@@ -4,7 +4,7 @@ import { archiveListKey, bsaVersion, iniName, iniPath, isSupported } from './uti
 import * as Promise from 'bluebird';
 import * as path from 'path';
 import { actions, fs, selectors, types, util } from 'vortex-api';
-import IniParser, { IniFile, WinapiFormat } from 'vortex-parse-ini';
+import IniParser, { WinapiFormat } from 'vortex-parse-ini';
 
 function genIniTweaksIni(api: types.IExtensionApi): Promise<string> {
   const gameId = selectors.activeGameId(api.store.getState());
@@ -12,10 +12,13 @@ function genIniTweaksIni(api: types.IExtensionApi): Promise<string> {
   const archivesKey = archiveListKey(gameId);
   return parser.read(iniPath(gameId))
   .then(ini => {
-    return `[Archive]
+    if ((ini.data['Archive'] === undefined) || (ini.data['Archive'][archivesKey] === undefined)) {
+      return Promise.reject(new Error(`Missing ini key "${archivesKey}" in section "Archive"`));
+    }
+    return Promise.resolve(`[Archive]
 bInvalidateOlderFiles=1
 bUseArchives=1
-${archivesKey}=${REDIRECTION_FILE}, ${ini.data['Archive'][archivesKey]}`;
+${archivesKey}=${REDIRECTION_FILE}, ${ini.data['Archive'][archivesKey]}`);
   });
 }
 
