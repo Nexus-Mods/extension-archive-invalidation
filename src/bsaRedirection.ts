@@ -1,5 +1,5 @@
 import { REDIRECTION_FILE, REDIRECTION_MOD } from './constants';
-import { archiveListKey, bsaVersion, iniName, iniPath, isSupported } from './util/gameSupport';
+import { archiveListKey, bsaVersion, defaultArchives, iniName, iniPath, isSupported } from './util/gameSupport';
 
 import * as Promise from 'bluebird';
 import * as path from 'path';
@@ -12,13 +12,14 @@ function genIniTweaksIni(api: types.IExtensionApi): Promise<string> {
   const archivesKey = archiveListKey(gameId);
   return parser.read(iniPath(gameId))
   .then(ini => {
-    if ((ini.data['Archive'] === undefined) || (ini.data['Archive'][archivesKey] === undefined)) {
-      return Promise.reject(new Error(`Missing ini key "${archivesKey}" in section "Archive"`));
+    let archives = defaultArchives(gameId);
+    if ((ini.data['Archive'] !== undefined) && (ini.data['Archive'][archivesKey] !== undefined)) {
+      archives = ini.data['Archive'][archivesKey];
     }
     return Promise.resolve(`[Archive]
 bInvalidateOlderFiles=1
 bUseArchives=1
-${archivesKey}=${REDIRECTION_FILE}, ${ini.data['Archive'][archivesKey]}`);
+${archivesKey}=${REDIRECTION_FILE}, ${archives}`);
   });
 }
 

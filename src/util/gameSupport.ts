@@ -10,6 +10,7 @@ interface IGameSupport {
   mygamesPath: string;
   iniName: string;
   archiveListKey: string;
+  defaultArchives: string[];
 }
 
 const gameSupport: { [gameId: string]: IGameSupport } = {
@@ -27,6 +28,8 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
     mygamesPath: 'skyrim',
     iniName: 'Skyrim.ini',
     archiveListKey: 'SResourceArchiveList',
+    defaultArchives: ['Skyrim - Misc.bsa', 'Skyrim - Shaders.bsa', 'Skyrim - Textures.bsa',
+                      'Skyrim - Interface.bsa', 'Skyrim - Animations.bsa', 'Skyrim - Meshes.bsa', 'Skyrim - Sounds.bsa'],
   },
   skyrimse: {
     fileFilter: (fileName: string) =>
@@ -36,6 +39,8 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
     mygamesPath: 'Skyrim Special Edition',
     iniName: 'Skyrim.ini',
     archiveListKey: 'SResourceArchiveList',
+    defaultArchives: ['Skyrim - Misc.bsa', 'Skyrim - Shaders.bsa', 'Skyrim - Interface.bsa', 'Skyrim - Animations.bsa',
+                      'Skyrim - Meshes0.bsa', 'Skyrim - Meshes1.bsa', 'Skyrim - Sounds.bsa'],
   },
   skyrimvr: {
     fileFilter: (fileName: string) =>
@@ -45,6 +50,8 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
     mygamesPath: 'Skyrim VR',
     iniName: 'Skyrim.ini',
     archiveListKey: 'SResourceArchiveList',
+    defaultArchives: ['Skyrim - Misc.bsa', 'Skyrim - Shaders.bsa', 'Skyrim - Interface.bsa', 'Skyrim - Animations.bsa',
+                      'Skyrim - Meshes0.bsa', 'Skyrim - Meshes1.bsa', 'Skyrim - Sounds.bsa'],
   },
   fallout4: {
     fileFilter: (fileName: string) => {
@@ -61,6 +68,8 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
     mygamesPath: 'Fallout4',
     iniName: 'Fallout4.ini',
     archiveListKey: 'SResourceArchiveList',
+    defaultArchives: ['Fallout4 - Voices.ba2', 'Fallout4 - Meshes.ba2', 'Fallout4 - MeshesExtra.ba2',
+                      'Fallout4 - Misc.ba2', 'Fallout4 - Sounds.ba2', 'Fallout4 - Materials.ba2'],
   },
   fallout4vr: {
     fileFilter: (fileName: string) =>
@@ -70,24 +79,32 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
     mygamesPath: 'Fallout4VR',
     iniName: 'Fallout4Custom.ini',
     archiveListKey: 'SResourceArchiveList',
+    defaultArchives: ['Fallout4 - Voices.ba2', 'Fallout4 - Meshes.ba2', 'Fallout4 - MeshesExtra.ba2',
+                      'Fallout4 - Misc.ba2', 'Fallout4 - Sounds.ba2', 'Fallout4 - Materials.ba2'],
   },
   fallout3: {
     bsaVersion: 0x68,
     mygamesPath: 'Fallout3',
     iniName: 'Fallout.ini',
     archiveListKey: 'SArchiveList',
+    defaultArchives: ['Fallout - Textures.bsa', 'Fallout - Meshes.bsa', 'Fallout - Voices.bsa',
+                      'Fallout - Sound.bsa', 'Fallout - MenuVoices.bsa', 'Fallout - Misc.bsa'],
   },
   falloutnv: {
     bsaVersion: 0x68,
     mygamesPath: 'FalloutNV',
     iniName: 'Fallout.ini',
     archiveListKey: 'SArchiveList',
+    defaultArchives: ['Fallout - Textures.bsa', 'Fallout - Textures2.bsa', 'Fallout - Meshes.bsa',
+                      'Fallout - Voices1.bsa', 'Fallout - Sound.bsa', 'Fallout - Misc.bsa'],
   },
   oblivion: {
     bsaVersion: 0x67,
     mygamesPath: 'Oblivion',
     iniName: 'Oblivion.ini',
     archiveListKey: 'SResourceArchiveList',
+    defaultArchives: ['Oblivion - Meshes.bsa', 'Oblivion - Textures - Compressed.bsa', 'Oblivion - Sounds.bsa',
+                      'Oblivion - Voices1.bsa', 'Oblivion - Voices2.bsa', 'Oblivion - Misc.bsa'],
   },
 };
 
@@ -122,4 +139,8 @@ export function iniPath(gameMode: string): string {
 
 export function archiveListKey(gameMode: string): string {
   return gameSupport[gameMode].archiveListKey;
+}
+
+export function defaultArchives(gameMode: string): string[] {
+  return gameSupport[gameMode].defaultArchives;
 }
