@@ -1,5 +1,5 @@
 import filesNewer from './util/filesNewer';
-import { bsaVersion, fileFilter, isSupported, targetAge } from './util/gameSupport';
+import { bsaVersion, fileFilter, isSupported, targetAge, iniPath } from './util/gameSupport';
 import Settings from './views/Settings';
 
 import { toggleInvalidation } from './bsaRedirection';
@@ -10,6 +10,7 @@ import * as I18next from 'i18next';
 import * as path from 'path';
 import {} from 'redux-thunk';
 import { actions, fs, selectors, types, util } from 'vortex-api';
+import {IniFile} from 'vortex-parse-ini';
 
 function testArchivesAge(api: types.IExtensionApi) {
   const state: types.IState = api.store.getState();
@@ -81,6 +82,14 @@ function testArchivesAge(api: types.IExtensionApi) {
       });
 }
 
+function applyIniSettings(api: types.IExtensionApi, profile: types.IProfile, iniFile: IniFile<any>) {
+  if (iniFile.data.Archive === undefined) {
+    iniFile.data.Archive = {};
+  }
+  iniFile.data.Archive.bInvalidateOlderFiles=1;
+  iniFile.data.Archive.sResourceDataDirsFinal='';
+}
+
 interface IToDoProps {
   gameMode: string;
   mods: { [id: string]: types.IMod };
@@ -93,6 +102,13 @@ function useBSARedirection(gameMode: string) {
 function init(context: types.IExtensionContext): boolean {
   context.registerTest('archive-backdate', 'gamemode-activated',
                        () => testArchivesAge(context.api));
+
+  context.api.onAsync('apply-settings', (profile: types.IProfile, filePath: string, ini: IniFile<any>) => {
+    if (isSupported(profile.gameId) && (filePath.toLowerCase() === iniPath(profile.gameId).toLowerCase())) {
+      applyIniSettings(context.api, profile, ini);
+    }
+    return Promise.resolve();
+  });
 
   context.registerToDo(
     'bsa-redirection', 'workaround',
