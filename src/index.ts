@@ -103,13 +103,6 @@ function init(context: types.IExtensionContext): boolean {
   context.registerTest('archive-backdate', 'gamemode-activated',
                        () => testArchivesAge(context.api));
 
-  context.api.onAsync('apply-settings', (profile: types.IProfile, filePath: string, ini: IniFile<any>) => {
-    if (isSupported(profile.gameId) && (filePath.toLowerCase() === iniPath(profile.gameId).toLowerCase())) {
-      applyIniSettings(context.api, profile, ini);
-    }
-    return Promise.resolve();
-  });
-
   context.registerToDo(
     'bsa-redirection', 'workaround',
     (state: types.IState): IToDoProps => {
@@ -130,6 +123,15 @@ function init(context: types.IExtensionContext): boolean {
   (context.registerSettings as any)('Workarounds', Settings, undefined, () =>
     useBSARedirection(selectors.activeGameId(context.api.store.getState())),
   );
+
+  context.once(() => {
+    context.api.onAsync('apply-settings', (profile: types.IProfile, filePath: string, ini: IniFile<any>) => {
+      if (isSupported(profile.gameId) && (filePath.toLowerCase() === iniPath(profile.gameId).toLowerCase())) {
+        applyIniSettings(context.api, profile, ini);
+      }
+      return Promise.resolve();
+    });
+  });
 
   return true;
 }
