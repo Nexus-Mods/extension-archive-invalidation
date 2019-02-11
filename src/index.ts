@@ -1,5 +1,5 @@
 import filesNewer from './util/filesNewer';
-import { bsaVersion, fileFilter, isSupported, targetAge, iniPath } from './util/gameSupport';
+import { bsaVersion, fileFilter, iniPath, isSupported, targetAge } from './util/gameSupport';
 import Settings from './views/Settings';
 
 import { toggleInvalidation } from './bsaRedirection';
@@ -9,7 +9,7 @@ import * as Promise from 'bluebird';
 import * as I18next from 'i18next';
 import * as path from 'path';
 import {} from 'redux-thunk';
-import { actions, fs, selectors, types, util } from 'vortex-api';
+import { actions, fs, log, selectors, types, util } from 'vortex-api';
 import {IniFile} from 'vortex-parse-ini';
 
 function testArchivesAge(api: types.IExtensionApi) {
@@ -82,12 +82,14 @@ function testArchivesAge(api: types.IExtensionApi) {
       });
 }
 
-function applyIniSettings(api: types.IExtensionApi, profile: types.IProfile, iniFile: IniFile<any>) {
+function applyIniSettings(api: types.IExtensionApi,
+                          profile: types.IProfile,
+                          iniFile: IniFile<any>) {
   if (iniFile.data.Archive === undefined) {
     iniFile.data.Archive = {};
   }
-  iniFile.data.Archive.bInvalidateOlderFiles=1;
-  iniFile.data.Archive.sResourceDataDirsFinal='';
+  iniFile.data.Archive.bInvalidateOlderFiles = 1;
+  iniFile.data.Archive.sResourceDataDirsFinal = '';
 }
 
 interface IToDoProps {
@@ -125,12 +127,15 @@ function init(context: types.IExtensionContext): boolean {
   );
 
   context.once(() => {
-    context.api.onAsync('apply-settings', (profile: types.IProfile, filePath: string, ini: IniFile<any>) => {
-      if (isSupported(profile.gameId) && (filePath.toLowerCase() === iniPath(profile.gameId).toLowerCase())) {
-        applyIniSettings(context.api, profile, ini);
-      }
-      return Promise.resolve();
-    });
+    context.api.onAsync('apply-settings',
+      (profile: types.IProfile, filePath: string, ini: IniFile<any>) => {
+        log('debug', 'apply AI settings', { gameId: profile.gameId, filePath });
+        if (isSupported(profile.gameId)
+            && (filePath.toLowerCase() === iniPath(profile.gameId).toLowerCase())) {
+          applyIniSettings(context.api, profile, ini);
+        }
+        return Promise.resolve();
+      });
   });
 
   return true;
