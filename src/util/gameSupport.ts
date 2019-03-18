@@ -127,7 +127,7 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
     bsaVersion: 0x67,
     mygamesPath: 'Oblivion',
     iniName: 'Oblivion.ini',
-    archiveListKey: 'SResourceArchiveList',
+    archiveListKey: 'SArchiveList',
     defaultArchives: ['Oblivion - Meshes.bsa', 'Oblivion - Textures - Compressed.bsa',
                       'Oblivion - Sounds.bsa', 'Oblivion - Voices1.bsa',
                       'Oblivion - Voices2.bsa', 'Oblivion - Misc.bsa'],
