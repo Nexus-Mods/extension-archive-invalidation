@@ -5,7 +5,7 @@ import { REDIRECTION_MOD } from '../constants';
 
 import * as React from 'react';
 import { ControlLabel, FormGroup, HelpBlock } from 'react-bootstrap';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import * as Redux from 'redux';
 import { ComponentEx, selectors, Toggle, types } from 'vortex-api';
@@ -71,6 +71,6 @@ function mapDispatchToProps(dispatch: Redux.Dispatch<any>): IActionProps {
 }
 
 export default
-  translate(['common'], { wait: false })(
-    connect(mapStateToProps, mapDispatchToProps)(Settings),
+  withTranslation(['common'])(
+    connect(mapStateToProps, mapDispatchToProps)(Settings) as any,
   ) as React.ComponentClass<{}>;

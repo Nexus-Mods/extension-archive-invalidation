@@ -6,7 +6,7 @@ import { toggleInvalidation } from './bsaRedirection';
 import { REDIRECTION_MOD } from './constants';
 
 import * as Promise from 'bluebird';
-import * as I18next from 'i18next';
+import I18next from 'i18next';
 import * as path from 'path';
 import {} from 'redux-thunk';
 import { actions, fs, log, selectors, types, util } from 'vortex-api';
@@ -116,7 +116,7 @@ function init(context: types.IExtensionContext): boolean {
     }, 'workaround',
     'Archive Invalidation', (props: IToDoProps) => toggleInvalidation(context.api, props.gameMode),
     (props: IToDoProps) => isSupported(props.gameMode) && bsaVersion(props.gameMode) !== undefined,
-    (t: I18next.TranslationFunction, props: IToDoProps) => (
+    (t: typeof I18next.t, props: IToDoProps) => (
       (props.mods[REDIRECTION_MOD] !== undefined) ? t('Yes') : t('No')
     ),
     undefined,
