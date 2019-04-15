@@ -11,6 +11,7 @@ import * as path from 'path';
 import {} from 'redux-thunk';
 import { actions, fs, log, selectors, types, util } from 'vortex-api';
 import {IniFile} from 'vortex-parse-ini';
+import { UserCanceled } from 'vortex-api/lib/util/api';
 
 function testArchivesAge(api: types.IExtensionApi) {
   const state: types.IState = api.store.getState();
@@ -74,6 +75,7 @@ function testArchivesAge(api: types.IExtensionApi) {
                           })),
         });
       })
+      .catch(UserCanceled, () => Promise.resolve(undefined))
       .catch((err: Error) => {
         api.showErrorNotification('Failed to read bsa/ba2 files.', err, {
           allowReport: (err as any).code !== 'ENOENT',
