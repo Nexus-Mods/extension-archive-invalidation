@@ -56,6 +56,8 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
   const installPath = selectors.installPath(store.getState());
   const iniTweaksPath = path.join(installPath, REDIRECTION_MOD, 'Ini Tweaks');
 
+  const invalidationPath = path.join(installPath, REDIRECTION_MOD, REDIRECTION_FILE);
+
   return new Promise((resolve, reject) => {
     api.events.emit('create-mod', gameMode, mod, (error) => {
       if (error !== null) {
@@ -64,15 +66,15 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
       return resolve();
     });
   })
-    .then(() => {
-      return api.openArchive(path.join(installPath, REDIRECTION_MOD, REDIRECTION_FILE), {
+    .then(() => fs.forcePerm(api.translate, () => {
+      return api.openArchive(invalidationPath, {
         version: bsaVersion(gameMode).toString(),
         create: true,
       })
         .then(archive =>
           archive.addFile(path.sep + 'dummy.dds', '')
             .then(() => archive.write()));
-    })
+    }, invalidationPath))
     .then(() => fs.ensureDirAsync(iniTweaksPath))
     .then(() => genIniTweaksIni(api))
     .then(data => fs.writeFileAsync(
@@ -94,6 +96,7 @@ export function toggleInvalidation(api: types.IExtensionApi, gameMode: string): 
     return enableBSARedirection(api)
       .catch(err => {
         api.showErrorNotification('Failed to add invalidation mod', err);
+        api.events.emit('remove-mod', gameMode, REDIRECTION_MOD);
       });
   }
 }
