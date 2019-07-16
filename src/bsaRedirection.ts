@@ -1,5 +1,6 @@
 import { REDIRECTION_FILE, REDIRECTION_MOD } from './constants';
-import { archiveListKey, bsaVersion, defaultArchives, iniName, iniPath, isSupported } from './util/gameSupport';
+import { archiveListKey, bsaVersion, defaultArchives, iniName,
+         iniPath, isSupported } from './util/gameSupport';
 
 import * as Promise from 'bluebird';
 import * as path from 'path';

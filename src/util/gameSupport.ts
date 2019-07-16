@@ -70,7 +70,7 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
       && path.extname(fileName).toLowerCase() === '.bsa',
     targetAge: new Date(2008, 10, 1),
     mygamesPath: 'Skyrim VR',
-    iniName: 'Skyrim.ini',
+    iniName: 'SkyrimVR.ini',
     archiveListKey: 'SResourceArchiveList',
     defaultArchives: ['Skyrim - Misc.bsa', 'Skyrim - Shaders.bsa', 'Skyrim - Interface.bsa',
                       'Skyrim - Animations.bsa', 'Skyrim - Meshes0.bsa', 'Skyrim - Meshes1.bsa',
