@@ -67,6 +67,7 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
       return resolve();
     });
   })
+    .then(() => fs.ensureDirAsync(iniTweaksPath))
     .then(() => fs.forcePerm(api.translate, () => {
       return api.openArchive(invalidationPath, {
         version: bsaVersion(gameMode).toString(),
@@ -76,7 +77,6 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
           archive.addFile(path.sep + 'dummy.dds', '')
             .then(() => archive.write()));
     }, invalidationPath))
-    .then(() => fs.ensureDirAsync(iniTweaksPath))
     .then(() => genIniTweaksIni(api))
     .then(data => fs.writeFileAsync(
         path.join(iniTweaksPath, redirectionIni), data))
