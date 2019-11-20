@@ -1,4 +1,4 @@
-import Promise from 'bluebird';
+import * as Promise from 'bluebird';
 import * as path from 'path';
 import { fs } from 'vortex-api';
 

@@ -5,7 +5,7 @@ import Settings from './views/Settings';
 import { toggleInvalidation } from './bsaRedirection';
 import { REDIRECTION_MOD } from './constants';
 
-import Promise from 'bluebird';
+import * as Promise from 'bluebird';
 import I18next from 'i18next';
 import * as path from 'path';
 import {} from 'redux-thunk';
