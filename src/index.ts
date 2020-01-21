@@ -99,7 +99,7 @@ interface IToDoProps {
 }
 
 function useBSARedirection(gameMode: string) {
-  return isSupported(gameMode) && (targetAge(gameMode) === undefined);
+  return isSupported(gameMode) && (bsaVersion(gameMode) !== undefined);
 }
 
 function init(context: types.IExtensionContext): boolean {

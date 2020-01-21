@@ -108,6 +108,15 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
                       'Fallout4 - Sounds.ba2', 'Fallout4 - Materials.ba2'],
   },
   fallout3: {
+    fileFilter: (fileName: string) =>
+      path.extname(fileName) === '.bsa'
+      && (fileName.startsWith('Fallout - ')
+          || fileName.startsWith('BrokenSteel - ')
+          || fileName.startsWith('Anchorage - ')
+          || fileName.startsWith('PointLookout - ')
+          || fileName.startsWith('Zeta - ')
+          || fileName.startsWith('ThePitt - ')),
+    targetAge: new Date(2006, 1, 1),
     bsaVersion: 0x68,
     mygamesPath: 'Fallout3',
     iniName: 'Fallout.ini',
@@ -116,6 +125,19 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
                       'Fallout - Sound.bsa', 'Fallout - MenuVoices.bsa', 'Fallout - Misc.bsa'],
   },
   falloutnv: {
+    fileFilter: (fileName: string) =>
+      path.extname(fileName) === '.bsa'
+      && (fileName.startsWith('Fallout - ')
+          || fileName.startsWith('DeadMoney -')
+          || fileName.startsWith('HonestHearts - ')
+          || fileName.startsWith('OldWorldBlues - ')
+          || fileName.startsWith('LonesomeRoad - ')
+          || fileName.startsWith('CaravanPack - ')
+          || fileName.startsWith('ClassicPack - ')
+          || fileName.startsWith('MercenaryPack - ')
+          || fileName.startsWith('TribalPack - ')
+          || fileName.startsWith('GunRunnersArsenal - ')),
+    targetAge: new Date(2006, 1, 1),
     bsaVersion: 0x68,
     mygamesPath: 'FalloutNV',
     iniName: 'Fallout.ini',
@@ -124,6 +146,12 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
                       'Fallout - Voices1.bsa', 'Fallout - Sound.bsa', 'Fallout - Misc.bsa'],
   },
   oblivion: {
+    fileFilter: (fileName: string) =>
+      path.extname(fileName) === '.bsa'
+      && (fileName.startsWith('Oblivion - ')
+          || fileName.startsWith('DLC')
+          || fileName.startsWith('Knights')),
+    targetAge: new Date(2006, 1, 1),
     bsaVersion: 0x67,
     mygamesPath: 'Oblivion',
     iniName: 'Oblivion.ini',
@@ -139,7 +167,11 @@ export function isSupported(gameId: string): boolean {
 }
 
 export function fileFilter(gameId: string): (fileName: string) => boolean {
-  return gameSupport[gameId].fileFilter;
+  if (gameSupport[gameId].fileFilter !== undefined) {
+    return gameSupport[gameId].fileFilter;
+  } else {
+    return () => false;
+  }
 }
 
 export function targetAge(gameId: string): Date {
