@@ -3590,8 +3590,8 @@ void-elements@^2.0.1:
   integrity sha1-wGavtYK7HLQSjWDqkjkulNXp2+w=
 
 vortex-api@Nexus-Mods/Vortex-api#electron7:
-  version "1.1.1-electron7.2"
-  resolved "https://codeload.github.com/Nexus-Mods/Vortex-api/tar.gz/fb7bda1f9f63cc0d0dd251bfe65dcb11e4449762"
+  version "1.2.0-electron7.1"
+  resolved "https://codeload.github.com/Nexus-Mods/Vortex-api/tar.gz/1c75fdb357e29acf7d3dfa15b8e116c2fe62c4b3"
 
 vortex-parse-ini@Nexus-Mods/vortex-parse-ini:
   version "0.2.6"

@@ -99,7 +99,7 @@ interface IToDoProps {
 }
 
 function useBSARedirection(gameMode: string) {
-  return isSupported(gameMode) && (targetAge(gameMode) === undefined);
+  return isSupported(gameMode) && (bsaVersion(gameMode) !== undefined);
 }
 
 function init(context: types.IExtensionContext): boolean {
@@ -116,7 +116,7 @@ function init(context: types.IExtensionContext): boolean {
       };
     }, 'workaround',
     'Archive Invalidation', (props: IToDoProps) => toggleInvalidation(context.api, props.gameMode),
-    (props: IToDoProps) => isSupported(props.gameMode) && bsaVersion(props.gameMode) !== undefined,
+    (props: IToDoProps) => useBSARedirection(props.gameMode),
     (t: typeof I18next.t, props: IToDoProps) => (
       (props.mods[REDIRECTION_MOD] !== undefined) ? t('Yes') : t('No')
     ),

@@ -1,4 +1,4 @@
-import { isSupported, targetAge } from '../util/gameSupport';
+import { bsaVersion, isSupported } from '../util/gameSupport';
 
 import { toggleInvalidation } from '../bsaRedirection';
 import { REDIRECTION_MOD } from '../constants';
@@ -27,7 +27,7 @@ class Settings extends ComponentEx<IProps, {}> {
   public render(): JSX.Element {
     const { t, gameMode, mods } = this.props;
 
-    if (!isSupported(gameMode) || (targetAge(gameMode) !== undefined)) {
+    if (!isSupported(gameMode) || (bsaVersion(gameMode) === undefined)) {
       return null;
     }
 
