@@ -85,6 +85,11 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
       store.dispatch(actions.setModEnabled(profile.id, REDIRECTION_MOD, true));
       store.dispatch(actions.setINITweakEnabled(
         gameMode, REDIRECTION_MOD, redirectionIni, true));
+    })
+    .catch(err => {
+      if (err['path'] === undefined) {
+        err['path'] = invalidationPath;
+      }
     });
 }
 
