@@ -21,8 +21,8 @@ const gameSupportXboxPass: { [gameId: string]: any } = {
   },
   fallout4: {
     mygamesPath: 'Fallout4 MS',
-  }
-}
+  },
+};
 
 const gameSupport: { [gameId: string]: IGameSupport } = {
   skyrim: {
@@ -183,7 +183,7 @@ export function initGameSupport(store: Redux.Store<types.IState>) {
         gameSupport[gameMode].mygamesPath = gameSupportXboxPass[gameMode].mygamesPath;
       }
     }
-  })
+  });
 }
 
 export function isSupported(gameId: string): boolean {

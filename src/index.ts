@@ -128,7 +128,6 @@ function init(context: types.IExtensionContext): boolean {
   );
 
   context.once(() => {
-    initGameSupport(context.api.store);
     context.api.onAsync('apply-settings',
       (profile: types.IProfile, filePath: string, ini: IniFile<any>) => {
         log('debug', 'apply AI settings', { gameId: profile.gameId, filePath });
@@ -137,6 +136,11 @@ function init(context: types.IExtensionContext): boolean {
           applyIniSettings(context.api, profile, ini);
         }
         return Promise.resolve();
+      });
+
+    context.api.onStateChange(
+      ['settings', 'gameMode', 'discovered'], (previous, current) => {
+        initGameSupport(context.api.store);
       });
   });
 
