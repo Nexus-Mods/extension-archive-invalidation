@@ -1,5 +1,7 @@
 import { app as appIn, remote } from 'electron';
 import * as path from 'path';
+import * as Redux from 'redux';
+import { types } from 'vortex-api';
 
 const app = appIn || remote.app;
 
@@ -11,6 +13,15 @@ interface IGameSupport {
   iniName: string;
   archiveListKey: string;
   defaultArchives: string[];
+}
+
+const gameSupportXboxPass: { [gameId: string]: any } = {
+  skyrimse: {
+    mygamesPath: 'Skyrim Special Edition MS',
+  },
+  fallout4: {
+    mygamesPath: 'Fallout4 MS',
+  }
 }
 
 const gameSupport: { [gameId: string]: IGameSupport } = {
@@ -161,6 +172,19 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
                       'Oblivion - Voices2.bsa', 'Oblivion - Misc.bsa'],
   },
 };
+
+export function initGameSupport(store: Redux.Store<types.IState>) {
+  const state: types.IState = store.getState();
+  const { discovered } = state.settings.gameMode;
+
+  Object.keys(gameSupportXboxPass).forEach(gameMode => {
+    if (discovered[gameMode]?.path !== undefined) {
+      if (discovered[gameMode].path.toLowerCase().includes('3275kfvn8vcwc')) {
+        gameSupport[gameMode].mygamesPath = gameSupportXboxPass[gameMode].mygamesPath;
+      }
+    }
+  })
+}
 
 export function isSupported(gameId: string): boolean {
   return gameSupport[gameId] !== undefined;

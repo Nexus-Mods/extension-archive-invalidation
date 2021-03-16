@@ -1,5 +1,5 @@
 import filesNewer from './util/filesNewer';
-import { bsaVersion, fileFilter, iniPath, isSupported, targetAge } from './util/gameSupport';
+import { bsaVersion, fileFilter, iniPath, initGameSupport, isSupported, targetAge } from './util/gameSupport';
 import Settings from './views/Settings';
 
 import { toggleInvalidation } from './bsaRedirection';
@@ -128,6 +128,7 @@ function init(context: types.IExtensionContext): boolean {
   );
 
   context.once(() => {
+    initGameSupport(context.api.store);
     context.api.onAsync('apply-settings',
       (profile: types.IProfile, filePath: string, ini: IniFile<any>) => {
         log('debug', 'apply AI settings', { gameId: profile.gameId, filePath });
