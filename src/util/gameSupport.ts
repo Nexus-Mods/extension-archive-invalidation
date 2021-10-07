@@ -1,9 +1,6 @@
-import { app as appIn, remote } from 'electron';
 import * as path from 'path';
 import * as Redux from 'redux';
-import { types } from 'vortex-api';
-
-const app = appIn || remote.app;
+import { types, util } from 'vortex-api';
 
 interface IGameSupport {
   fileFilter?: (fileName: string) => boolean;
@@ -213,7 +210,7 @@ export function bsaVersion(gameId: string): number {
 }
 
 export function mygamesPath(gameMode: string): string {
-  return path.join(app.getPath('documents'), 'My Games',
+  return path.join(util.getVortexPath('documents'), 'My Games',
                    gameSupport[gameMode].mygamesPath);
 }
 
