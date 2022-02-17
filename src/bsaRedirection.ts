@@ -58,7 +58,7 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
   const iniTweaksPath = path.join(installPath, REDIRECTION_MOD, 'Ini Tweaks');
 
   const invalidationPath = path.join(installPath, REDIRECTION_MOD, REDIRECTION_FILE);
-
+  const dummyFile = path.join(path.dirname(invalidationPath), 'dummy.dds');
   return new Promise((resolve, reject) => {
     api.events.emit('create-mod', gameMode, mod, (error) => {
       if (error !== null) {
@@ -67,6 +67,10 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
       return resolve();
     });
   })
+    .then(() =>
+      fs.ensureDirWritableAsync(path.dirname(dummyFile))
+      .then(() => fs.writeFileAsync(dummyFile, '', { encoding: 'utf8' })
+      .catch(err => err.code !== 'EEXIST' ? Promise.reject(err) : Promise.resolve())))
     .then(() => fs.ensureDirAsync(iniTweaksPath))
     .then(() => fs.forcePerm(api.translate, () => {
       return api.openArchive(invalidationPath, {
@@ -74,9 +78,10 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
         create: true,
       })
         .then(archive =>
-          archive.addFile(path.sep + 'dummy.dds', '')
+          archive.addFile(path.basename(dummyFile), dummyFile)
             .then(() => archive.write()));
     }, invalidationPath))
+    .then(() => fs.removeAsync(dummyFile).catch(err => null))
     .then(() => genIniTweaksIni(api))
     .then(data => fs.writeFileAsync(
         path.join(iniTweaksPath, redirectionIni), data))
@@ -90,6 +95,7 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
       if (err['path'] === undefined) {
         err['path'] = invalidationPath;
       }
+      return Promise.reject(err);
     });
 }
 
