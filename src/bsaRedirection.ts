@@ -58,7 +58,13 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
   const iniTweaksPath = path.join(installPath, REDIRECTION_MOD, 'Ini Tweaks');
 
   const invalidationPath = path.join(installPath, REDIRECTION_MOD, REDIRECTION_FILE);
-  const dummyFile = path.join(path.dirname(invalidationPath), 'dummy.dds');
+  const dummyFile = path.join(path.dirname(invalidationPath), 'dummy', 'dummy.dds');
+  const createDummy = () => fs.ensureDirWritableAsync(path.dirname(dummyFile))
+    .then(() => fs.writeFileAsync(dummyFile, '', { encoding: 'utf8' })
+    .catch(err => err.code !== 'EEXIST' ? Promise.reject(err) : Promise.resolve()));
+  const cleanupDummy = () => Promise.mapSeries([dummyFile, path.dirname(dummyFile)],
+    iter => fs.removeAsync(iter).catch(err => Promise.resolve()));
+
   return new Promise((resolve, reject) => {
     api.events.emit('create-mod', gameMode, mod, (error) => {
       if (error !== null) {
@@ -67,10 +73,7 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
       return resolve();
     });
   })
-    .then(() =>
-      fs.ensureDirWritableAsync(path.dirname(dummyFile))
-      .then(() => fs.writeFileAsync(dummyFile, '', { encoding: 'utf8' })
-      .catch(err => err.code !== 'EEXIST' ? Promise.reject(err) : Promise.resolve())))
+    .then(() => createDummy())
     .then(() => fs.ensureDirAsync(iniTweaksPath))
     .then(() => fs.forcePerm(api.translate, () => {
       return api.openArchive(invalidationPath, {
@@ -78,10 +81,10 @@ function enableBSARedirection(api: types.IExtensionApi): Promise<void> {
         create: true,
       })
         .then(archive =>
-          archive.addFile(path.basename(dummyFile), dummyFile)
+          archive.addFile(path.join('dummy', path.basename(dummyFile)), dummyFile)
             .then(() => archive.write()));
     }, invalidationPath))
-    .then(() => fs.removeAsync(dummyFile).catch(err => null))
+    .then(() => cleanupDummy())
     .then(() => genIniTweaksIni(api))
     .then(data => fs.writeFileAsync(
         path.join(iniTweaksPath, redirectionIni), data))
