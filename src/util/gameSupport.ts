@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as Redux from 'redux';
-import { types, util } from 'vortex-api';
+import { selectors, types, util } from 'vortex-api';
 
 interface IGameSupport {
   fileFilter?: (fileName: string) => boolean;
@@ -10,6 +10,12 @@ interface IGameSupport {
   iniName: string;
   archiveListKey: string;
   defaultArchives: string[];
+}
+
+const gameSupportGOG: { [gameId: string]: Partial<IGameSupport> } = {
+  skyrimse: {
+    mygamesPath: 'Skyrim Special Edition GOG',
+  },
 }
 
 const gameSupportXboxPass: { [gameId: string]: any } = {
@@ -176,8 +182,11 @@ function isXboxPath(discoveryPath: string) {
   return ['modifiablewindowsapps', '3275kfvn8vcwc'].find(hasPathElement) !== undefined;
 }
 
+let gameStoreForGame: (gameId: string) => string = () => undefined;
+
 export function initGameSupport(store: Redux.Store<types.IState>) {
   const state: types.IState = store.getState();
+  gameStoreForGame = (gameId: string) => selectors.discoveryByGame(store.getState(), gameId)['store'];
   const { discovered } = state.settings.gameMode;
 
   Object.keys(gameSupportXboxPass).forEach(gameMode => {
@@ -210,8 +219,11 @@ export function bsaVersion(gameId: string): number {
 }
 
 export function mygamesPath(gameMode: string): string {
-  return path.join(util.getVortexPath('documents'), 'My Games',
-                   gameSupport[gameMode].mygamesPath);
+  const relPath = (gameStoreForGame(gameMode) === 'gog')
+    ? gameSupportGOG[gameMode].mygamesPath
+    : gameSupport[gameMode].mygamesPath;
+
+  return path.join(util.getVortexPath('documents'), 'My Games', relPath);
 }
 
 export function iniName(gameMode: string): string {
