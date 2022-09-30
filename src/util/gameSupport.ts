@@ -219,7 +219,7 @@ export function bsaVersion(gameId: string): number {
 }
 
 export function mygamesPath(gameMode: string): string {
-  const relPath = (gameStoreForGame(gameMode) === 'gog')
+  const relPath = (gameStoreForGame(gameMode) === 'gog') && !!gameSupportGOG[gameMode]
     ? gameSupportGOG[gameMode].mygamesPath
     : gameSupport[gameMode].mygamesPath;
 
