@@ -12,22 +12,7 @@ interface IGameSupport {
   defaultArchives: string[];
 }
 
-const gameSupportGOG: { [gameId: string]: Partial<IGameSupport> } = {
-  skyrimse: {
-    mygamesPath: 'Skyrim Special Edition GOG',
-  },
-}
-
-const gameSupportXboxPass: { [gameId: string]: any } = {
-  skyrimse: {
-    mygamesPath: 'Skyrim Special Edition MS',
-  },
-  fallout4: {
-    mygamesPath: 'Fallout4 MS',
-  },
-};
-
-const gameSupport: { [gameId: string]: IGameSupport } = {
+const gameSupport = util.makeOverlayableDictionary<string, IGameSupport>({
   skyrim: {
     fileFilter: (fileName: string) => {
       const fileNameL = fileName.toLowerCase();
@@ -174,70 +159,64 @@ const gameSupport: { [gameId: string]: IGameSupport } = {
                       'Oblivion - Sounds.bsa', 'Oblivion - Voices1.bsa',
                       'Oblivion - Voices2.bsa', 'Oblivion - Misc.bsa'],
   },
-};
-
-function isXboxPath(discoveryPath: string) {
-  const hasPathElement = (element) =>
-    discoveryPath.toLowerCase().includes(element);
-  return ['modifiablewindowsapps', '3275kfvn8vcwc'].find(hasPathElement) !== undefined;
-}
+}, {
+  gog: {
+    skyrimse: {
+      mygamesPath: 'Skyrim Special Edition GOG',
+    },
+  },
+  xbox: {
+    skyrimse: {
+      mygamesPath: 'Skyrim Special Edition MS',
+    },
+    fallout4: {
+      mygamesPath: 'Fallout4 MS',
+    },
+  },
+}, (gameId: string) => gameStoreForGame(gameId));
 
 let gameStoreForGame: (gameId: string) => string = () => undefined;
 
 export function initGameSupport(store: Redux.Store<types.IState>) {
-  const state: types.IState = store.getState();
   gameStoreForGame = (gameId: string) => selectors.discoveryByGame(store.getState(), gameId)['store'];
-  const { discovered } = state.settings.gameMode;
-
-  Object.keys(gameSupportXboxPass).forEach(gameMode => {
-    if (discovered[gameMode]?.path !== undefined) {
-      if (isXboxPath(discovered[gameMode].path)) {
-        gameSupport[gameMode].mygamesPath = gameSupportXboxPass[gameMode].mygamesPath;
-      }
-    }
-  });
 }
 
 export function isSupported(gameId: string): boolean {
-  return gameSupport[gameId] !== undefined;
+  return gameSupport.has(gameId);
+}
+
+function falseFunc() {
+  return false;
 }
 
 export function fileFilter(gameId: string): (fileName: string) => boolean {
-  if (gameSupport[gameId].fileFilter !== undefined) {
-    return gameSupport[gameId].fileFilter;
-  } else {
-    return () => false;
-  }
+  return gameSupport.get(gameId, 'fileFilter') ?? falseFunc;
 }
 
 export function targetAge(gameId: string): Date {
-  return gameSupport[gameId].targetAge;
+  return gameSupport.get(gameId, 'targetAge');
 }
 
 export function bsaVersion(gameId: string): number {
-  return gameSupport[gameId].bsaVersion;
+  return gameSupport.get(gameId, 'bsaVersion');
 }
 
 export function mygamesPath(gameMode: string): string {
-  const relPath = (gameStoreForGame(gameMode) === 'gog') && !!gameSupportGOG[gameMode]
-    ? gameSupportGOG[gameMode].mygamesPath
-    : gameSupport[gameMode].mygamesPath;
-
-  return path.join(util.getVortexPath('documents'), 'My Games', relPath);
+  return path.join(util.getVortexPath('documents'), 'My Games', gameSupport.get(gameMode, 'mygamesPath'));
 }
 
 export function iniName(gameMode: string): string {
-  return gameSupport[gameMode].iniName;
+  return gameSupport.get(gameMode, 'iniName');
 }
 
 export function iniPath(gameMode: string): string {
-  return path.join(mygamesPath(gameMode), gameSupport[gameMode].iniName);
+  return path.join(mygamesPath(gameMode), gameSupport.get(gameMode, 'iniName'));
 }
 
 export function archiveListKey(gameMode: string): string {
-  return gameSupport[gameMode].archiveListKey;
+  return gameSupport.get(gameMode, 'archiveListKey');
 }
 
 export function defaultArchives(gameMode: string): string[] {
-  return gameSupport[gameMode].defaultArchives;
+  return gameSupport.get(gameMode, 'defaultArchives');
 }
