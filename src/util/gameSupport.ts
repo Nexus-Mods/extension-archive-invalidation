@@ -184,7 +184,7 @@ let gameStoreForGame: (gameId: string) => string = () => undefined;
 
 export function initGameSupport(api: types.IExtensionApi) {
   gameStoreForGame = (gameId: string) =>
-    selectors.discoveryByGame(api.store.getState(), gameId).store;
+    selectors.discoveryByGame(api.store.getState(), gameId)?.store;
 }
 
 export function isSupported(gameId: string): boolean {
