@@ -9,7 +9,7 @@ import IniParser, { WinapiFormat } from 'vortex-parse-ini';
 
 function genIniTweaksIni(api: types.IExtensionApi): Promise<string> {
   const gameId = selectors.activeGameId(api.store.getState());
-  const parser = new IniParser(new WinapiFormat());
+  const parser = new IniParser(new WinapiFormat() as any);
   const archivesKey = archiveListKey(gameId);
   return parser.read(iniPath(gameId))
   .then(ini => {
