@@ -144,6 +144,16 @@ const gameSupport = util.makeOverlayableDictionary<string, IGameSupport>({
     defaultArchives: ['Fallout - Textures.bsa', 'Fallout - Textures2.bsa', 'Fallout - Meshes.bsa',
                       'Fallout - Voices1.bsa', 'Fallout - Sound.bsa', 'Fallout - Misc.bsa'],
   },
+  starfield: {
+    fileFilter: (fileName: string) =>
+      (fileName.match(/(starfield - |sfbgs)/))
+      && path.extname(fileName).toLowerCase() === '.ba2',
+    targetAge: new Date(2008, 10, 1),
+    mygamesPath: 'Starfield',
+    iniName: 'StarfieldCustom.ini',
+    archiveListKey: 'SResourceArchiveList',
+    defaultArchives: [],
+  },
   oblivion: {
     fileFilter: (fileName: string) =>
       path.extname(fileName) === '.bsa'
