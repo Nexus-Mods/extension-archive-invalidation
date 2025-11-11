@@ -5,7 +5,6 @@ import Settings from './views/Settings';
 import { toggleInvalidation } from './bsaRedirection';
 import { REDIRECTION_MOD } from './constants';
 
-import Promise from 'bluebird';
 import I18next from 'i18next';
 import * as path from 'path';
 import {} from 'redux-thunk';
@@ -37,47 +36,25 @@ function testArchivesAge(api: types.IExtensionApi) {
     return Promise.resolve(undefined);
   }
 
+  const t = api.translate;
   return filesNewer(dataPath, fileFilter(gameId), age)
-      .then((files: string[]) => {
-        if (files.length === 0) {
+    .then((files: string[]) => {
+      if (files.length === 0) {
+        return Promise.resolve(undefined);
+      }
+      return Promise.all(files.map(file => fs.utimesAsync(
+                                path.join(dataPath, file),
+                                age.getTime() / 1000,
+                                age.getTime() / 1000)))
+        .then(() => {
+          log('info', `Updated timestamps on ${files.length} archive files for game ${gameId}`);
           return Promise.resolve(undefined);
-        }
-
-        return Promise.resolve({
-          description: {
-            short: 'Loose files may not get loaded',
-            long:
-                'Due to oddities in the game engine, some loose files will not ' +
-                'get loaded unless we change the filetime on the vanilla BSA/BA2 files. ' +
-                'There is no drawback to doing this.',
-          },
-          severity: 'warning',
-          automaticFix: () => new Promise<void>(
-                  (fixResolve, fixReject) =>
-                      Promise.map(files, file => fs.utimesAsync(
-                                             path.join(dataPath, file),
-                                             age.getTime() / 1000,
-                                             age.getTime() / 1000))
-                          .then((stats: any) => {
-                            fixResolve();
-                            return Promise.resolve(undefined);
-                          })
-                          .catch(err => {
-                            api.store.dispatch(actions.addNotification({
-                              type: 'error',
-                              title: 'Failed to change file times',
-                              message: err.code === 'EPERM'
-                                ? 'Game files are write protected'
-                                : err.message,
-                            }) as any);
-                            fixResolve();
-                          })),
         });
-      })
-      .catch(util.UserCanceled, () => Promise.resolve(undefined))
+    })
       .catch((err: Error) => {
+        const canceled = err instanceof util.ProcessCanceled || err instanceof util.UserCanceled;
         api.showErrorNotification('Failed to read bsa/ba2 files.', err, {
-          allowReport: (err as any).code !== 'ENOENT',
+          allowReport: !canceled && !['ENOENT', 'EPERM'].includes((err as any).code),
         });
         return Promise.resolve(undefined);
       });
@@ -105,7 +82,7 @@ function useBSARedirection(gameMode: string) {
 function init(context: types.IExtensionContext): boolean {
   initGameSupport(context.api);
   context.registerTest('archive-backdate', 'gamemode-activated',
-                       () => testArchivesAge(context.api));
+                       () => testArchivesAge(context.api) as any);
 
   context.registerToDo(
     'bsa-redirection', 'workaround',
